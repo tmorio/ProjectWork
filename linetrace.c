@@ -5,7 +5,7 @@
 #define _XTAL_FREQ 10000000
 
 void servocenter(void);
-int servoctl(int set);
+double servoctl(double set);
 
 char PULSE;
 main(void) {
@@ -16,8 +16,9 @@ main(void) {
 	TMR0 = 61;
 	INTCON = 0b10100000;
 	PORTB = 0b00001000;
-	int pld = 150;
+	double pld = 150;
 	int flag = 0;
+	int blackcount = 0;
 
 	while (1) {
 		if (PORTAbits.RA4 == 1) {
@@ -28,24 +29,44 @@ main(void) {
 
 			PORTBbits.RB7 = PORTBbits.RB5 = 0;
 			PORTBbits.RB6 = PORTBbits.RB4 = 1;
-			if (PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1 && pld > 111) {
-				pld = pld - 1;
+			
+			if (PORTAbits.RA0 == 1 && PORTAbits.RA1 == 1 && PORTAbits.RA2 == 1){
+				blackcount++;
+				if(blackcount > 80){
+					pld = 300 - pld;
+					servoctl(pld);
+					PORTBbits.RB7 = PORTBbits.RB5 = 1;
+					PORTBbits.RB6 = PORTBbits.RB4 = 1;
+					__delay_ms(200);
+					PORTBbits.RB7 = PORTBbits.RB5 = 1;
+					PORTBbits.RB6 = PORTBbits.RB4 = 0;
+					__delay_ms(400);
+					PORTBbits.RB7 = PORTBbits.RB5 = 0;
+					PORTBbits.RB6 = PORTBbits.RB4 = 0;
+					__delay_ms(200);
+					blackcount = 0;
+				}
+			}
+			else if (PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1 && pld > 100.0) {
+				pld = pld - 1.3;
+				blackcount = 0;
 				servoctl(pld);
 			}
-			else if (PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0 && pld < 189) {
-				pld = pld + 1;
+			else if (PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0 && pld < 200.0) {
+				pld = pld + 1.3;
+				blackcount = 0;
 				servoctl(pld);
 			}
-			__delay_ms(1);
+			__delay_ms(2);
 			PORTBbits.RB7 = PORTBbits.RB5 = 0;
 			PORTBbits.RB6 = PORTBbits.RB4 = 0;
-			__delay_ms(4);
+			__delay_ms(5);
 		}
 	}
 	return 0;
 }
 
-int servoctl(int set) {
+double servoctl(double set) {
 	PULSE = set;
 	return 0;
 }
