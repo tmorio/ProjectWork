@@ -5,7 +5,8 @@
 #define _XTAL_FREQ 10000000
 
 void servocenter(void);
-double servoctl(double set);
+int gomode(void);
+int servoctl(int set);
 
 char PULSE;
 main(void) {
@@ -16,9 +17,9 @@ main(void) {
 	TMR0 = 61;
 	INTCON = 0b10100000;
 	PORTB = 0b00001000;
-	double pld = 150;
+	int pld = 150;
 	int flag = 0;
-	int blackcount = 0;
+    int final = 0;
 
 	while (1) {
 		if (PORTAbits.RA4 == 1) {
@@ -29,50 +30,52 @@ main(void) {
 
 			PORTBbits.RB7 = PORTBbits.RB5 = 0;
 			PORTBbits.RB6 = PORTBbits.RB4 = 1;
-			
-			if (PORTAbits.RA0 == 1 && PORTAbits.RA1 == 1 && PORTAbits.RA2 == 1){
-				blackcount++;
-				if(blackcount > 80){
-					pld = 300 - pld;
-					servoctl(pld);
-					PORTBbits.RB7 = PORTBbits.RB5 = 1;
-					PORTBbits.RB6 = PORTBbits.RB4 = 1;
-					__delay_ms(200);
-					PORTBbits.RB7 = PORTBbits.RB5 = 1;
-					PORTBbits.RB6 = PORTBbits.RB4 = 0;
-					__delay_ms(400);
-					PORTBbits.RB7 = PORTBbits.RB5 = 0;
-					PORTBbits.RB6 = PORTBbits.RB4 = 0;
-					__delay_ms(200);
-					blackcount = 0;
-				}
-			}
-			else if (PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1 && pld > 100.0) {
-				pld = pld - 1.3;
-				blackcount = 0;
+			if (PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1 && pld > 110) {
+				pld = pld - 1;
 				servoctl(pld);
+                final = 1;
 			}
-			else if (PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0 && pld < 200.0) {
-				pld = pld + 1.3;
-				blackcount = 0;
+			else if (PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0 && pld < 190) {
+				pld = pld + 1;
 				servoctl(pld);
+                final = 2;
 			}
+            else if(pld < 110 || pld > 190){
+                gomode(final);
+                pld = 290 - pld;
+            }
 			__delay_ms(2);
 			PORTBbits.RB7 = PORTBbits.RB5 = 0;
 			PORTBbits.RB6 = PORTBbits.RB4 = 0;
-			__delay_ms(5);
+			__delay_ms(3);
 		}
 	}
 	return 0;
 }
 
-double servoctl(double set) {
+int servoctl(int set) {
 	PULSE = set;
 	return 0;
 }
 void servocenter(void) {
 	PULSE = 150;
 	return;
+}
+
+int gomode(int last){
+    while(1){
+        PORTBbits.RB7 = PORTBbits.RB5 = 0;
+	    PORTBbits.RB6 = PORTBbits.RB4 = 1;
+        __delay_ms(1);
+        if(last == 1 && PORTAbits.RA2 == 1){
+            return;
+        }else if(last == 2 && PORTAbits.RA0 == 1){
+            return;
+        }
+        PORTBbits.RB7 = PORTBbits.RB5 = 0;
+		PORTBbits.RB6 = PORTBbits.RB4 = 0;
+		__delay_ms(3);
+    }
 }
 
 void interrupt isr(void) {
