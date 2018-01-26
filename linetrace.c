@@ -3,11 +3,6 @@
 #pragma config WDTE = OFF
 #pragma config PWRTE = ON
 #define _XTAL_FREQ 10000000
-
-void servocenter(void);
-int gomode(int last);
-int servoctl(int set);
-
 char PULSE;
 main(void) {
 	TRISA = 0x1F;
@@ -19,73 +14,29 @@ main(void) {
 	PORTB = 0b00001000;
 	int pld = 150;
 	int flag = 0;
-    int final = 0;
-
 	while (1) {
 		if (PORTAbits.RA4 == 1) {
 			flag = 1;
 		}
-
 		if (flag == 1) {
 
 			PORTBbits.RB7 = PORTBbits.RB5 = 0;
 			PORTBbits.RB6 = PORTBbits.RB4 = 1;
 			if (PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1 && pld > 100) {
-				pld = pld - 1;
-				servoctl(pld);
-                final = 1;
+				pld = pld - 10;
+				PULSE = pld;
 			}
 			else if (PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0 && pld < 200) {
-				pld = pld + 1;
-				servoctl(pld);
-                final = 2;
+				pld = pld + 10;
+				PULSE = pld;
 			}
-            if(pld == 100 || pld == 200){
-				PORTBbits.RB7 = PORTBbits.RB5 = 1;
-				PORTBbits.RB6 = PORTBbits.RB4 = 1;
-			__delay_ms(200);
-                gomode(final);
-                if(pld <= 100){
-					pld = 110;
-				}else{
-					pld = 190;
-				}
-			__delay_ms(200);
-            }
+			__delay_ms(1);
+			PORTBbits.RB7 = PORTBbits.RB5 = PORTBbits.RB6 = PORTBbits.RB4 = 0;
 			__delay_ms(2);
-			PORTBbits.RB7 = PORTBbits.RB5 = 0;
-			PORTBbits.RB6 = PORTBbits.RB4 = 0;
-			__delay_ms(3);
 		}
 	}
 	return 0;
 }
-
-int servoctl(int set) {
-	PULSE = set;
-	return 0;
-}
-void servocenter(void) {
-	PULSE = 150;
-	return;
-}
-
-int gomode(int last){
-		while(1){
-        PORTBbits.RB7 = PORTBbits.RB5 = 0;
-		PORTBbits.RB6 = PORTBbits.RB4 = 1;
-		__delay_ms(1);
-        PORTBbits.RB7 = PORTBbits.RB5 = 0;
-		PORTBbits.RB6 = PORTBbits.RB4 = 0;
-        __delay_ms(4);
-        if(last == 1 && PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1){
-            return;
-        }else if(last == 2 && PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0){
-            return;
-        }
-    }
-}
-
 void interrupt isr(void) {
 	if (INTCONbits.T0IF) {
 		TMR0 = 61;
