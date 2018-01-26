@@ -14,11 +14,11 @@ main(void) {
 	PORTB = 0b00001000;
 	int pld = 150;		//サーボモーター位置変数定義
 	int flag = 0;		//起動フラグ定義
-	while (1) {			//ループ開始
+	while (1) {		//ループ開始
 		if (PORTAbits.RA4 == 1) {	//起動スイッチ待機
-			flag = 1;				//起動フラグを設定
+			flag = 1;		//起動フラグを設定
 		}
-		if (flag == 1) {			//起動フラグ確認
+		if (flag == 1) {		//起動フラグ確認
 			PORTBbits.RB7 = PORTBbits.RB5 = 0;	//前進
 			PORTBbits.RB6 = PORTBbits.RB4 = 1;
 			if (PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1 && pld > 100) {	//サーボ右回転用及び、回転可能上限の設定
