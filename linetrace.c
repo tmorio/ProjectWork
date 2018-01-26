@@ -5,7 +5,7 @@
 #define _XTAL_FREQ 10000000
 
 void servocenter(void);
-int gomode(void);
+int gomode(int last);
 int servoctl(int set);
 
 char PULSE;
