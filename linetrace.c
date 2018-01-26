@@ -40,7 +40,10 @@ main(void) {
 				servoctl(pld);
                 final = 2;
 			}
-            else if(pld == 100 || pld == 200){
+            if(pld == 100 || pld == 200){
+				PORTBbits.RB7 = PORTBbits.RB5 = 1;
+				PORTBbits.RB6 = PORTBbits.RB4 = 1;
+				__delay_ms(1000);
                 gomode(final);
                 if(pld <= 100){
 					pld = 110;
@@ -68,20 +71,18 @@ void servocenter(void) {
 }
 
 int gomode(int last){
-
-    while(1){
-        if(last == 1 && PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1){
-            return;
-        }else if(last == 2 && PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0){
-            return;
-        }
+		while(1){
         PORTBbits.RB7 = PORTBbits.RB5 = 0;
 		PORTBbits.RB6 = PORTBbits.RB4 = 1;
 		__delay_ms(1);
         PORTBbits.RB7 = PORTBbits.RB5 = 0;
 		PORTBbits.RB6 = PORTBbits.RB4 = 0;
         __delay_ms(4);
-		
+        if(last == 1 && PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1){
+            return;
+        }else if(last == 2 && PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0){
+            return;
+        }
     }
 }
 
