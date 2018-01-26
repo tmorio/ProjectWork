@@ -43,14 +43,14 @@ main(void) {
             if(pld == 100 || pld == 200){
 				PORTBbits.RB7 = PORTBbits.RB5 = 1;
 				PORTBbits.RB6 = PORTBbits.RB4 = 1;
-				__delay_ms(1000);
+			__delay_ms(200);
                 gomode(final);
                 if(pld <= 100){
 					pld = 110;
 				}else{
 					pld = 190;
 				}
-     		   __delay_ms(500);
+			__delay_ms(200);
             }
 			__delay_ms(2);
 			PORTBbits.RB7 = PORTBbits.RB5 = 0;
