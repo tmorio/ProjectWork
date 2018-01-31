@@ -23,11 +23,10 @@ main(void) {
 			PORTBbits.RB6 = PORTBbits.RB4 = 1;
 			if (PORTAbits.RA0 == 0 && PORTAbits.RA2 == 1 && pld > 100) {		//サーボ右回転用及び、回転可能上限の設定
 				pld = pld - 10;	//角度設定
-				PULSE = pld;	//サーボモーター動作実行
 			}else if (PORTAbits.RA0 == 1 && PORTAbits.RA2 == 0 && pld < 200) {	//サーボ左回転用及び、回転可能上限の設定
 				pld = pld + 10;	//角度設定
-				PULSE = pld;	//サーボモーター動作実行
 			}
+			PULSE = pld;	//サーボモーター動作実行
 			__delay_ms(4);		//4msウェイト
 			PORTBbits.RB7 = PORTBbits.RB5 = PORTBbits.RB6 = PORTBbits.RB4 = 0;	//モーター動作停止
 			__delay_ms(5);		//5msウェイト
